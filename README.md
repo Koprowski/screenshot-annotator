@@ -32,6 +32,12 @@ curl -O https://raw.githubusercontent.com/Koprowski/screenshot-annotator/main/in
 open index.html
 ```
 
+## Note on saving
+
+Each time you open the tool, the browser will ask you to select an output folder for saving annotations. This is a browser security limitation: web apps can't remember folder access across sessions.
+
+**Tip:** Bookmark your annotation folder in Windows Explorer's Quick Access (drag the folder to the sidebar). That way when the folder picker opens, your target is one click away.
+
 ## Features
 
 - Drag and drop or paste screenshots
