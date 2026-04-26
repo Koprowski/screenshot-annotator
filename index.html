@@ -29,16 +29,15 @@
 
   /* TOOLBAR */
   .toolbar {
-    height: 52px;
+    min-height: 52px;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 0 16px;
+    padding: 8px 16px;
     flex-shrink: 0;
-    flex-wrap: nowrap;
-    overflow-x: auto;
+    flex-wrap: wrap;
   }
 
   .toolbar-title {
@@ -375,6 +374,12 @@
     color: var(--muted);
   }
 
+  .prompt-box-wrap {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 8px;
+  }
   .prompt-box {
     background: var(--bg);
     border: 1px solid var(--border);
@@ -389,8 +394,9 @@
     outline: none;
     resize: none;
     width: 100%;
-    flex: 1;
-    min-height: 0;
+    height: 100%;
+    box-sizing: border-box;
+    display: block;
   }
   .prompt-box:focus { border-color: var(--accent); }
 
@@ -451,6 +457,27 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
+  /* Inline text editor overlay */
+  .inline-text-editor {
+    position: absolute;
+    z-index: 50;
+    background: transparent;
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    color: inherit;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: bold;
+    padding: 2px 4px;
+    outline: none;
+    resize: none;
+    min-width: 120px;
+    min-height: 1.4em;
+    overflow: hidden;
+    white-space: pre-wrap;
+    line-height: 1.3;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.3);
+  }
+
   /* Annotation label on canvas */
   .canvas-label {
     position: absolute;
@@ -472,6 +499,133 @@
     font-size: 13px;
     line-height: 1.6;
   }
+
+  /* OVERLAY IMAGES */
+  .overlay-wrap {
+    position: absolute;
+    z-index: 4;
+    cursor: move;
+    user-select: none;
+    box-sizing: border-box;
+  }
+  .overlay-wrap.ov-selected {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .overlay-wrap img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .ov-handle {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border: 2px solid var(--accent);
+    border-radius: 2px;
+    z-index: 5;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+  .ov-handle.ov-tl { top:-6px; left:-6px; cursor:nw-resize; }
+  .ov-handle.ov-t  { top:-6px; left:calc(50% - 6px); cursor:n-resize; }
+  .ov-handle.ov-tr { top:-6px; right:-6px; cursor:ne-resize; }
+  .ov-handle.ov-r  { top:calc(50% - 6px); right:-6px; cursor:e-resize; }
+  .ov-handle.ov-br { bottom:-6px; right:-6px; cursor:se-resize; }
+  .ov-handle.ov-b  { bottom:-6px; left:calc(50% - 6px); cursor:s-resize; }
+  .ov-handle.ov-bl { bottom:-6px; left:-6px; cursor:sw-resize; }
+  .ov-handle.ov-l  { top:calc(50% - 6px); left:-6px; cursor:w-resize; }
+  .ov-delete {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 20px;
+    height: 20px;
+    background: #ef4444;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 6;
+    line-height: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+  .ov-delete:hover { background: #dc2626; }
+
+  /* CROP UI */
+  .crop-ui {
+    position: absolute;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .crop-rect {
+    position: absolute;
+    border: 1.5px solid rgba(255,255,255,0.9);
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.52);
+    cursor: move;
+    pointer-events: all;
+  }
+  /* Rule-of-thirds grid */
+  .crop-rect::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-top: 1px solid rgba(255,255,255,0.25);
+    border-bottom: 1px solid rgba(255,255,255,0.25);
+    top: 33.33%; bottom: 33.33%;
+    pointer-events: none;
+  }
+  .crop-rect::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-left: 1px solid rgba(255,255,255,0.25);
+    border-right: 1px solid rgba(255,255,255,0.25);
+    left: 33.33%; right: 33.33%;
+    pointer-events: none;
+  }
+  .crop-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    z-index: 1;
+    pointer-events: all;
+  }
+  .crop-handle.c-tl { top:-5px; left:-5px; cursor:nw-resize; }
+  .crop-handle.c-t  { top:-5px; left:calc(50% - 5px); cursor:n-resize; }
+  .crop-handle.c-tr { top:-5px; right:-5px; cursor:ne-resize; }
+  .crop-handle.c-r  { top:calc(50% - 5px); right:-5px; cursor:e-resize; }
+  .crop-handle.c-br { bottom:-5px; right:-5px; cursor:se-resize; }
+  .crop-handle.c-b  { bottom:-5px; left:calc(50% - 5px); cursor:s-resize; }
+  .crop-handle.c-bl { bottom:-5px; left:-5px; cursor:sw-resize; }
+  .crop-handle.c-l  { top:calc(50% - 5px); left:-5px; cursor:w-resize; }
+  .crop-actions-bar {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    z-index: 1000;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
 </style>
 </head>
 <body>
@@ -479,6 +633,7 @@
 <!-- TOOLBAR -->
 <div class="toolbar">
   <span class="toolbar-title">✏️ Annotator</span>
+  <button id="toolbar-save-icon" onclick="saveSession()" title="Save Session" style="display:none;background:none;border:none;cursor:pointer;padding:2px 4px;font-size:18px;line-height:1;color:var(--accent)" aria-label="Save Session">💾</button>
   <div class="toolbar-sep"></div>
 
   <button class="tool-btn active" id="btn-rect" onclick="setTool('rect')">🟨 Highlight</button>
@@ -490,6 +645,9 @@
   <button class="tool-btn" id="btn-shape-oval" onclick="setShapeTool('shape-oval')">⬭ Oval</button>
   <button class="tool-btn" id="btn-shape-line" onclick="setShapeTool('shape-line')">╱ Line</button>
   <button class="tool-btn" id="btn-shape-arrow" onclick="setShapeTool('shape-arrow')">➡ Arrow</button>
+
+  <button class="tool-btn" id="btn-doodle" onclick="setTool('doodle')">✏ Doodle</button>
+  <button class="tool-btn" id="btn-text" onclick="setTool('text')">T Text</button>
 
   <div class="toolbar-sep"></div>
   <button class="tool-btn" id="btn-select" onclick="setTool('select')">↖ Select</button>
@@ -518,6 +676,10 @@
   <div class="toolbar-sep"></div>
 
   <button class="tool-btn" onclick="triggerPaste()">📋 Paste Image</button>
+  <button class="tool-btn" id="btn-undo" onclick="undo()" title="Undo (Ctrl+Z)" disabled style="opacity:0.4;padding:0 8px">↩</button>
+  <button class="tool-btn" id="btn-redo" onclick="redo()" title="Redo (Ctrl+Y)" disabled style="opacity:0.4;padding:0 8px">↪</button>
+  <button class="tool-btn" id="btn-paste-overlay" onclick="pasteOverlayImage()">🖼 Paste Overlay</button>
+  <button class="tool-btn" id="btn-crop-overlay" onclick="startCropMode()" title="Crop selected overlay image">✂ Crop Overlay</button>
   <button class="tool-btn danger" onclick="clearAll()">🗑 Clear All</button>
   <button class="tool-btn" onclick="changeSavePath()" title="Change the hardcoded parent directory used for clipboard path">⚙ Set Path</button>
   <span id="scale-indicator" style="display:none;font-size:11px;color:var(--muted);white-space:nowrap;margin-left:4px"></span>
@@ -580,7 +742,9 @@
         <h4>Feedback Prompt</h4>
         <button class="tool-btn" id="prompt-reset-btn" onclick="resetPrompt()" title="Regenerate from annotations">&#8635; Reset</button>
       </div>
-      <textarea class="prompt-box" id="prompt-box" oninput="onPromptEdit(this.value)">Add annotations to generate a feedback prompt.</textarea>
+      <div class="prompt-box-wrap">
+        <textarea class="prompt-box" id="prompt-box" oninput="onPromptEdit(this.value)">Add annotations to generate a feedback prompt.</textarea>
+      </div>
       <div class="prompt-actions">
         <button class="tool-btn primary" style="flex:1" id="copy-btn" onclick="copyPrompt()">Copy Prompt</button>
         <button class="tool-btn success" id="save-btn" onclick="saveSession()" title="Saves to C:\Tools\annotator-screenshots (auto-created). C:\Tools must exist — if not, files download to Downloads folder instead.">&#128190; Save Session</button>
@@ -597,7 +761,20 @@
   let nextId = 1;
   let selectedId = null;
 
-  let tool = 'rect'; // 'rect' | 'shape-rect' | 'shape-circle' | 'shape-oval' | 'shape-line' | 'shape-arrow' | 'select'
+  // Overlay images
+  let overlays = []; // { id, el, imgObj, src, x, y, w, h }
+  let nextOverlayId = 1;
+  let selectedOverlayId = null;
+  let _ovDrag = null;   // { id, startX, startY, origX, origY }
+  let _ovResize = null; // { id, handle, startX, startY, origX, origY, origW, origH }
+  let _cropState = null; // { ovId, uiEl, actionsEl, cropX, cropY, cropW, cropH, dragging, handle, startX, startY, origCropX, origCropY, origCropW, origCropH }
+
+  // Undo / Redo history
+  const MAX_HISTORY = 60;
+  let _history = [];
+  let _histIdx = -1;
+
+  let tool = 'rect'; // 'rect' | 'shape-rect' | 'shape-circle' | 'shape-oval' | 'shape-line' | 'shape-arrow' | 'doodle' | 'text' | 'select'
   let currentColor = '#ef4444';
   let currentOpacity = 0;      // 0 = no fill by default
   let currentStrokeWidth = 2;
@@ -609,6 +786,9 @@
   let isDrawing = false;
   let dragStart = null;
   let previewRect = null;
+
+  // Doodle state
+  let doodlePoints = []; // array of {x, y} collected while drawing
 
   // Select-mode interaction state
   let isDragging = false;
@@ -728,7 +908,7 @@
 
     // Draw resize handles for selected annotation
     const selAnn = annotations.find(a => a.id === selectedId);
-    if (selAnn) {
+    if (selAnn && selAnn.shape !== 'text') {
       dCtx.save();
       const shape = selAnn.shape || 'highlight';
       const handlePositions = (shape === 'line' || shape === 'arrow')
@@ -771,11 +951,11 @@
       ctx.fillStyle = hexToRgba(ann.color, ann.opacity);
       ctx.fillRect(ann.x, ann.y, ann.w, ann.h);
       ctx.strokeRect(ann.x, ann.y, ann.w, ann.h);
-      if (!isPreview) drawBadge(ctx, ann.x, ann.y, num, ann.color, isSelected);
+      if (!isPreview) drawBadge(ctx, Math.min(ann.x, ann.x + ann.w), Math.min(ann.y, ann.y + ann.h), num, ann.color, isSelected);
 
     } else if (shape === 'rect') {
       ctx.strokeRect(ann.x, ann.y, ann.w, ann.h);
-      if (!isPreview) drawBadge(ctx, ann.x, ann.y, num, ann.color, isSelected);
+      if (!isPreview) drawBadge(ctx, Math.min(ann.x, ann.x + ann.w), Math.min(ann.y, ann.y + ann.h), num, ann.color, isSelected);
 
     } else if (shape === 'circle') {
       // Square bounding box → perfect circle from center
@@ -785,7 +965,7 @@
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.stroke();
-      if (!isPreview) drawBadge(ctx, ann.x, ann.y, num, ann.color, isSelected);
+      if (!isPreview) drawBadge(ctx, Math.min(ann.x, ann.x + ann.w), Math.min(ann.y, ann.y + ann.h), num, ann.color, isSelected);
 
     } else if (shape === 'oval') {
       const cx = ann.x + ann.w / 2;
@@ -793,7 +973,7 @@
       ctx.beginPath();
       ctx.ellipse(cx, cy, Math.abs(ann.w / 2), Math.abs(ann.h / 2), 0, 0, Math.PI * 2);
       ctx.stroke();
-      if (!isPreview) drawBadge(ctx, ann.x, ann.y, num, ann.color, isSelected);
+      if (!isPreview) drawBadge(ctx, Math.min(ann.x, ann.x + ann.w), Math.min(ann.y, ann.y + ann.h), num, ann.color, isSelected);
 
     } else if (shape === 'line') {
       ctx.beginPath();
@@ -821,13 +1001,83 @@
       ctx.fill();
 
       if (!isPreview) drawBadge(ctx, ann.x, ann.y, num, ann.color, isSelected);
+
+    } else if (shape === 'text') {
+      // Don't draw text while the inline editor is active for this annotation
+      if (_activeInlineAnnId === ann.id) {
+        if (!isPreview) drawBadge(ctx, ann.x, ann.y - 20, num, ann.color, isSelected);
+        return;
+      }
+      const fontSize = ann.fontSize || 18;
+      ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+      ctx.fillStyle = ann.color;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      const displayText = ann.text || '';
+      if (!displayText) {
+        // Empty text -- show faint placeholder
+        ctx.globalAlpha = 0.3;
+        ctx.fillText('(text)', ann.x, ann.y);
+        ctx.globalAlpha = 1;
+      } else {
+        const lines = displayText.split('\n');
+        const lineHeight = fontSize * 1.3;
+        lines.forEach((line, li) => {
+          ctx.fillText(line, ann.x, ann.y + li * lineHeight);
+        });
+      }
+      // Draw selection outline
+      if (isSelected && !isPreview) {
+        const metrics = measureTextAnnotation(ctx, ann);
+        ctx.strokeStyle = ann.color;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 3]);
+        ctx.strokeRect(ann.x - 2, ann.y - 2, metrics.w + 4, metrics.h + 4);
+        ctx.setLineDash([]);
+      }
+      if (!isPreview) drawBadge(ctx, ann.x, ann.y - 20, num, ann.color, isSelected);
+
+    } else if (shape === 'doodle') {
+      const pts = ann.points;
+      if (!pts || pts.length < 2) return;
+      ctx.setLineDash(isSelected && !isPreview ? [6, 3] : []);
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length - 1; i++) {
+        const mx = (pts[i].x + pts[i + 1].x) / 2;
+        const my = (pts[i].y + pts[i + 1].y) / 2;
+        ctx.quadraticCurveTo(pts[i].x, pts[i].y, mx, my);
+      }
+      ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      if (!isPreview) {
+        // Badge at topmost-leftmost point of the stroke
+        const bx = Math.min(...pts.map(p => p.x));
+        const by = Math.min(...pts.map(p => p.y));
+        drawBadge(ctx, bx, by, num, ann.color, isSelected);
+      }
     }
+  }
+
+  function measureTextAnnotation(ctx, ann) {
+    const fontSize = ann.fontSize || 18;
+    ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+    const text = ann.text || '(text)';
+    const lines = text.split('\n');
+    const lineHeight = fontSize * 1.3;
+    let maxW = 0;
+    lines.forEach(line => {
+      const m = ctx.measureText(line);
+      if (m.width > maxW) maxW = m.width;
+    });
+    return { w: Math.max(maxW, 60), h: Math.max(lines.length * lineHeight, lineHeight) };
   }
 
   function drawBadge(ctx, x, y, num, color, selected) {
     const r = 10;
-    const bx = x + r + 2;
-    const by = y + r + 2;
+    const bx = x - r;
+    const by = y - r;
     ctx.beginPath();
     ctx.arc(bx, by, r, 0, Math.PI * 2);
     ctx.fillStyle = selected ? '#fff' : color;
@@ -852,6 +1102,23 @@
   interLayer.addEventListener('mousedown', onMouseDown);
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('mouseup', onMouseUp);
+
+  // Double-click to edit text annotations in select mode
+  interLayer.addEventListener('dblclick', e => {
+    if (!image) return;
+    const pos = getCanvasPos(e);
+    // Find a text annotation under the cursor
+    for (let i = annotations.length - 1; i >= 0; i--) {
+      const a = annotations[i];
+      if (a.shape === 'text' && hitTestText(pos, a)) {
+        selectedId = a.id;
+        renderAnnotations();
+        renderSidePanel();
+        openInlineTextEditor(a);
+        return;
+      }
+    }
+  });
 
   // Capture canvas rect at mousedown so coordinates stay stable
   // even if the viewport scrolls mid-drag.
@@ -937,14 +1204,18 @@
     if (!image) return;
     const sel = annotations.find(a => a.id === selectedId);
     if (sel) {
-      const h = hitTestHandles(pos, sel);
-      if (h !== null) {
-        interLayer.style.cursor = typeof h === 'number' ? RESIZE_CURSORS[h] : (h === 'start' ? 'crosshair' : 'crosshair');
-        return;
+      const shape = sel.shape || 'highlight';
+      if (shape !== 'text') {
+        const h = hitTestHandles(pos, sel);
+        if (h !== null) {
+          interLayer.style.cursor = typeof h === 'number' ? RESIZE_CURSORS[h] : (h === 'start' ? 'crosshair' : 'crosshair');
+          return;
+        }
       }
       // Check if inside selection bounding box → move cursor
-      const shape = sel.shape || 'highlight';
-      if (shape !== 'line' && shape !== 'arrow') {
+      if (shape === 'text') {
+        if (hitTestText(pos, sel)) { interLayer.style.cursor = 'move'; return; }
+      } else if (shape !== 'line' && shape !== 'arrow') {
         const bx = Math.min(sel.x, sel.x + sel.w), by = Math.min(sel.y, sel.y + sel.h);
         if (pos.x >= bx && pos.x <= bx + Math.abs(sel.w) && pos.y >= by && pos.y <= by + Math.abs(sel.h)) {
           interLayer.style.cursor = 'move'; return;
@@ -958,7 +1229,9 @@
 
   // ── INTERACTION ─────────────────────────────────────────────────────────────
   function onMouseDown(e) {
+    if (_cropState) return; // block annotation drawing while cropping
     if (!image) return;
+    if (selectedOverlayId !== null) deselectOverlay();
     _canvasRect = interLayer.getBoundingClientRect(); // lock rect for this gesture
     const pos = getCanvasPos(e);
 
@@ -980,8 +1253,12 @@
       if (sel) {
         const shape = sel.shape || 'highlight';
         let inside = false;
-        if (shape === 'line' || shape === 'arrow') {
+        if (shape === 'text') {
+          inside = hitTestText(pos, sel);
+        } else if (shape === 'line' || shape === 'arrow') {
           inside = pointNearLine(pos, sel);
+        } else if (shape === 'doodle') {
+          inside = pointNearDoodle(pos, sel);
         } else {
           const bx = Math.min(sel.x, sel.x+sel.w), by = Math.min(sel.y, sel.y+sel.h);
           inside = pos.x >= bx && pos.x <= bx+Math.abs(sel.w) && pos.y >= by && pos.y <= by+Math.abs(sel.h);
@@ -989,8 +1266,8 @@
         if (inside) {
           isDragging = true;
           const shape = sel.shape || 'highlight';
-          if (shape === 'line' || shape === 'arrow') {
-            dragOffset = { dx: pos.x - sel.x, dy: pos.y - sel.y };
+          if (shape === 'doodle') {
+            dragOffset = { px: pos.x, py: pos.y };
           } else {
             dragOffset = { dx: pos.x - sel.x, dy: pos.y - sel.y };
           }
@@ -1003,8 +1280,12 @@
       for (let i = annotations.length - 1; i >= 0; i--) {
         const a = annotations[i];
         const shape = a.shape || (a.isArrow ? 'arrow' : 'highlight');
-        if (shape === 'line' || shape === 'arrow') {
+        if (shape === 'text') {
+          if (hitTestText(pos, a)) { hit = a; break; }
+        } else if (shape === 'line' || shape === 'arrow') {
           if (pointNearLine(pos, a)) { hit = a; break; }
+        } else if (shape === 'doodle') {
+          if (pointNearDoodle(pos, a)) { hit = a; break; }
         } else {
           const bx = Math.min(a.x, a.x+(a.w||0)), by = Math.min(a.y, a.y+(a.h||0));
           if (pos.x >= bx && pos.x <= bx+Math.abs(a.w||0) && pos.y >= by && pos.y <= by+Math.abs(a.h||0)) {
@@ -1024,11 +1305,41 @@
       return;
     }
 
+    // Text tool: single click to place and immediately open inline editor
+    if (tool === 'text') {
+      const ann = { id: nextId++, shape: 'text', x: pos.x, y: pos.y, text: '', fontSize: 18, color: currentColor, strokeWidth: currentStrokeWidth, opacity: currentOpacity, note: '', type: 'improvement' };
+      annotations.push(ann);
+      selectedId = ann.id;
+      renderAnnotations();
+      renderSidePanel();
+      updatePrompt();
+      openInlineTextEditor(ann);
+      return;
+    }
+
+    // If an annotation is currently selected (dotted), the first click deselects
+    // it and makes it solid — but does NOT start drawing yet.
+    if (selectedId !== null) {
+      selectedId = null;
+      renderAnnotations();
+      renderSidePanel();
+      return;
+    }
+
+    if (tool === 'doodle') {
+      isDrawing = true;
+      doodlePoints = [pos];
+      return;
+    }
+
     isDrawing = true;
     dragStart = pos;
   }
 
   function onMouseMove(e) {
+    if (_cropState)  { handleCropMouseMove(e); return; }
+    if (_ovResize) { handleOverlayResize(e); return; }
+    if (_ovDrag)   { handleOverlayDrag(e);   return; }
     if (!image) return;
     const pos = getCanvasPos(e);
 
@@ -1047,6 +1358,12 @@
           if (shape === 'line' || shape === 'arrow') {
             const lx = ann.x2 - ann.x, ly = ann.y2 - ann.y;
             ann.x = dx; ann.y = dy; ann.x2 = dx + lx; ann.y2 = dy + ly;
+          } else if (shape === 'doodle') {
+            const ddx = pos.x - dragOffset.px;
+            const ddy = pos.y - dragOffset.py;
+            ann.points = ann.points.map(p => ({ x: p.x + ddx, y: p.y + ddy }));
+            dragOffset.px = pos.x;
+            dragOffset.py = pos.y;
           } else {
             ann.x = dx; ann.y = dy;
           }
@@ -1059,6 +1376,14 @@
     }
 
     if (!isDrawing || !image) return;
+
+    if (tool === 'doodle') {
+      doodlePoints.push(pos);
+      // Live preview: draw directly on display canvas, renderAnnotations will repaint fully
+      previewRect = { shape: 'doodle', points: doodlePoints, color: currentColor, strokeWidth: currentStrokeWidth, opacity: currentOpacity };
+      renderAnnotations();
+      return;
+    }
 
     if (isLinearTool()) {
       previewRect = { shape: tool.replace('shape-',''), x: dragStart.x, y: dragStart.y, x2: pos.x, y2: pos.y, color: currentColor, strokeWidth: currentStrokeWidth };
@@ -1073,6 +1398,8 @@
   }
 
   function onMouseUp(e) {
+    if (_cropState)           { handleCropMouseUp(); return; }
+    if (_ovDrag || _ovResize) { _ovDrag = null; _ovResize = null; _pushHistory(); return; }
     if (!isDrawing && !isDragging && !isResizing) return; // nothing active
 
     // Finish resize or drag
@@ -1080,6 +1407,7 @@
       resetGestureState();
       renderAnnotations();
       updatePrompt();
+      _pushHistory();
       return;
     }
 
@@ -1087,6 +1415,24 @@
     isDrawing = false;
     const pos = getCanvasPos(e);
     let ann = null;
+
+    if (tool === 'doodle') {
+      doodlePoints.push(pos);
+      if (doodlePoints.length >= 2) {
+        ann = { id: nextId++, shape: 'doodle', points: doodlePoints, color: currentColor, strokeWidth: currentStrokeWidth, opacity: currentOpacity, note: '', type: 'improvement' };
+      }
+      doodlePoints = [];
+      if (ann) {
+        annotations.push(ann);
+        selectedId = ann.id;
+      }
+      resetGestureState();
+      renderAnnotations();
+      renderSidePanel();
+      updatePrompt();
+      if (ann) _pushHistory();
+      return;
+    }
 
     if (isLinearTool()) {
       const len = Math.hypot(pos.x - dragStart.x, pos.y - dragStart.y);
@@ -1112,8 +1458,8 @@
     renderAnnotations();
     renderSidePanel();
     updatePrompt();
-    // Auto-focus the note textarea so user can type immediately
     if (ann) {
+      _pushHistory();
       setTimeout(() => {
         const ta = document.querySelector(`[data-ann-id="${ann.id}"] textarea`);
         if (ta) { ta.focus(); ta.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
@@ -1124,7 +1470,29 @@
   function resetGestureState() {
     isDrawing = false; isDragging = false; isResizing = false;
     previewRect = null; resizeHandle = null; resizeOrigin = null; dragOffset = null;
+    doodlePoints = [];
     _canvasRect = null;
+  }
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && _cropState) { cancelCrop(); return; }
+    if (e.key === 'Enter' && _cropState) { applyCrop(); return; }
+    // Undo / Redo — handled before textarea check so they work globally
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); return; }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); redo(); return; }
+    const tag = document.activeElement?.tagName;
+    if (tag === 'TEXTAREA' || tag === 'INPUT') return;
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      if (selectedOverlayId !== null) { deleteOverlay(selectedOverlayId); return; }
+      if (tool === 'select' && selectedId !== null) deleteAnnotation(selectedId);
+    }
+  });
+
+  function hitTestText(pos, ann) {
+    const metrics = measureTextAnnotation(dCtx, ann);
+    return pos.x >= ann.x - 2 && pos.x <= ann.x + metrics.w + 2 &&
+           pos.y >= ann.y - 2 && pos.y <= ann.y + metrics.h + 2;
   }
 
   function pointNearLine(pos, ann) {
@@ -1136,8 +1504,503 @@
     return Math.sqrt(px*px + py*py) < 12;
   }
 
+  function pointNearDoodle(pos, ann) {
+    const pts = ann.points;
+    if (!pts || pts.length < 2) return false;
+    const threshold = 10;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const dx = pts[i+1].x - pts[i].x, dy = pts[i+1].y - pts[i].y;
+      const len2 = dx*dx + dy*dy;
+      if (len2 === 0) continue;
+      const t = Math.max(0, Math.min(1, ((pos.x-pts[i].x)*dx + (pos.y-pts[i].y)*dy) / len2));
+      const nx = pts[i].x + t*dx - pos.x, ny = pts[i].y + t*dy - pos.y;
+      if (Math.sqrt(nx*nx + ny*ny) < threshold) return true;
+    }
+    return false;
+  }
+
+  // ── INLINE TEXT EDITOR ────────────────────────────────────────────────────
+  let _activeInlineEditor = null;
+
+  function openInlineTextEditor(ann) {
+    closeInlineTextEditor(); // close any existing one
+
+    const wrap = document.getElementById('canvas-wrap');
+    const textarea = document.createElement('textarea');
+    textarea.className = 'inline-text-editor';
+    textarea.style.left = ann.x + 'px';
+    textarea.style.top = ann.y + 'px';
+    textarea.style.fontSize = (ann.fontSize || 18) + 'px';
+    textarea.style.color = ann.color;
+    textarea.value = ann.text || '';
+    textarea.placeholder = 'Type here...';
+
+    // Auto-grow height
+    function autoResize() {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    textarea.addEventListener('input', () => {
+      ann.text = textarea.value;
+      autoResize();
+      renderAnnotations();
+      updatePrompt();
+    });
+
+    // Close on Escape or clicking outside
+    textarea.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeInlineTextEditor();
+        e.stopPropagation();
+      }
+    });
+
+    textarea.addEventListener('blur', () => {
+      // Small delay to allow click events to process first
+      setTimeout(() => {
+        if (_activeInlineEditor === textarea) {
+          closeInlineTextEditor();
+        }
+      }, 150);
+    });
+
+    wrap.appendChild(textarea);
+    _activeInlineEditor = textarea;
+    _activeInlineAnnId = ann.id;
+
+    // Focus and auto-resize after append
+    requestAnimationFrame(() => {
+      textarea.focus();
+      autoResize();
+    });
+  }
+
+  let _activeInlineAnnId = null;
+
+  function closeInlineTextEditor() {
+    if (_activeInlineEditor) {
+      // Commit final value
+      if (_activeInlineAnnId !== null) {
+        const ann = annotations.find(a => a.id === _activeInlineAnnId);
+        if (ann) {
+          ann.text = _activeInlineEditor.value;
+          // Remove empty text annotations
+          if (!ann.text.trim()) {
+            annotations = annotations.filter(a => a.id !== ann.id);
+            if (selectedId === ann.id) selectedId = null;
+          }
+        }
+      }
+      _activeInlineEditor.remove();
+      _activeInlineEditor = null;
+      _activeInlineAnnId = null;
+      renderAnnotations();
+      renderSidePanel();
+      updatePrompt();
+      _pushHistory();
+    }
+  }
+
+  // ── UNDO / REDO ────────────────────────────────────────────────────────────
+  function _takeSnapshot() {
+    return {
+      annotations: JSON.parse(JSON.stringify(annotations)),
+      overlays: overlays.map(ov => ({ id: ov.id, src: ov.src, x: ov.x, y: ov.y, w: ov.w, h: ov.h })),
+      nextId,
+      nextOverlayId
+    };
+  }
+
+  function _pushHistory() {
+    _history = _history.slice(0, _histIdx + 1);
+    _history.push(_takeSnapshot());
+    if (_history.length > MAX_HISTORY) _history.shift();
+    else _histIdx++;
+    _updateUndoRedo();
+  }
+
+  function _updateUndoRedo() {
+    const u = document.getElementById('btn-undo');
+    const r = document.getElementById('btn-redo');
+    if (u) { u.disabled = _histIdx <= 0; u.style.opacity = _histIdx <= 0 ? '0.4' : '1'; }
+    if (r) { r.disabled = _histIdx >= _history.length - 1; r.style.opacity = _histIdx >= _history.length - 1 ? '0.4' : '1'; }
+  }
+
+  function undo() {
+    if (_histIdx <= 0) return;
+    _histIdx--;
+    _applySnapshot(_history[_histIdx]);
+  }
+
+  function redo() {
+    if (_histIdx >= _history.length - 1) return;
+    _histIdx++;
+    _applySnapshot(_history[_histIdx]);
+  }
+
+  function _applySnapshot(snap) {
+    if (_cropState) _cleanupCropUI();
+    annotations = JSON.parse(JSON.stringify(snap.annotations));
+    nextId = snap.nextId;
+    selectedId = null;
+    // Rebuild overlays from snapshot
+    overlays.forEach(ov => ov.el.remove());
+    overlays = [];
+    nextOverlayId = snap.nextOverlayId;
+    selectedOverlayId = null;
+    snap.overlays.forEach(ovSnap => {
+      const imgObj = new Image();
+      imgObj.src = ovSnap.src;
+      _buildOverlayEl(ovSnap.src, imgObj, ovSnap.x, ovSnap.y, ovSnap.w, ovSnap.h, ovSnap.id);
+    });
+    renderAnnotations();
+    renderSidePanel();
+    updatePrompt();
+    _updateUndoRedo();
+  }
+
+  // ── OVERLAY IMAGES ─────────────────────────────────────────────────────────
+  function pasteOverlayImage() {
+    if (!image) { alert('Paste a base screenshot first before adding overlays.'); return; }
+    navigator.clipboard.read().then(items => {
+      for (const item of items) {
+        for (const type of item.types) {
+          if (type.startsWith('image/')) {
+            item.getType(type).then(blob => loadOverlayBlob(blob));
+            return;
+          }
+        }
+      }
+      alert('No image in clipboard. Copy an image first.');
+    }).catch(() => {
+      alert('No image in clipboard. Copy an image first.');
+    });
+  }
+
+  function loadOverlayBlob(blob) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const dataUrl = e.target.result;
+      const imgObj = new Image();
+      imgObj.onload = () => {
+        const maxW = baseCanvas.width * 0.5;
+        const maxH = baseCanvas.height * 0.5;
+        const scale = Math.min(1, maxW / imgObj.width, maxH / imgObj.height);
+        const w = Math.round(imgObj.width * scale);
+        const h = Math.round(imgObj.height * scale);
+        const x = Math.round((baseCanvas.width - w) / 2);
+        const y = Math.round((baseCanvas.height - h) / 2);
+        createOverlay(dataUrl, imgObj, x, y, w, h);
+      };
+      imgObj.src = dataUrl;
+    };
+    reader.readAsDataURL(blob);
+  }
+
+  function _buildOverlayEl(src, imgObj, x, y, w, h, id) {
+    const canvasWrap = document.getElementById('canvas-wrap');
+
+    const div = document.createElement('div');
+    div.className = 'overlay-wrap';
+    div.dataset.ovId = id;
+    div.style.left = x + 'px';
+    div.style.top = y + 'px';
+    div.style.width = w + 'px';
+    div.style.height = h + 'px';
+
+    const imgEl = document.createElement('img');
+    imgEl.src = src;
+    imgEl.draggable = false;
+    div.appendChild(imgEl);
+
+    ['tl','t','tr','r','br','b','bl','l'].forEach(pos => {
+      const hEl = document.createElement('div');
+      hEl.className = `ov-handle ov-${pos}`;
+      hEl.dataset.handle = pos;
+      hEl.style.display = 'none';
+      div.appendChild(hEl);
+    });
+
+    const del = document.createElement('div');
+    del.className = 'ov-delete';
+    del.textContent = '×';
+    del.style.display = 'none';
+    del.addEventListener('mousedown', e => { e.stopPropagation(); deleteOverlay(id); });
+    div.appendChild(del);
+
+    div.addEventListener('mousedown', e => {
+      if (e.target.classList.contains('ov-delete')) return;
+      e.stopPropagation();
+      e.preventDefault();
+      selectOverlay(id);
+      const ov = overlays.find(o => o.id === id);
+      if (e.target.classList.contains('ov-handle')) {
+        _ovResize = { id, handle: e.target.dataset.handle, startX: e.clientX, startY: e.clientY,
+          origX: ov.x, origY: ov.y, origW: ov.w, origH: ov.h };
+      } else {
+        _ovDrag = { id, startX: e.clientX, startY: e.clientY, origX: ov.x, origY: ov.y };
+      }
+    });
+
+    canvasWrap.appendChild(div);
+    overlays.push({ id, el: div, imgObj, src, x, y, w, h });
+  }
+
+  function createOverlay(src, imgObj, x, y, w, h) {
+    const id = nextOverlayId++;
+    _buildOverlayEl(src, imgObj, x, y, w, h, id);
+    selectOverlay(id);
+    _pushHistory();
+  }
+
+  function selectOverlay(id) {
+    selectedOverlayId = id;
+    overlays.forEach(ov => {
+      const sel = ov.id === id;
+      ov.el.classList.toggle('ov-selected', sel);
+      ov.el.querySelectorAll('.ov-handle, .ov-delete').forEach(el => {
+        el.style.display = sel ? '' : 'none';
+      });
+    });
+  }
+
+  function deselectOverlay() {
+    selectedOverlayId = null;
+    overlays.forEach(ov => {
+      ov.el.classList.remove('ov-selected');
+      ov.el.querySelectorAll('.ov-handle, .ov-delete').forEach(el => { el.style.display = 'none'; });
+    });
+  }
+
+  function deleteOverlay(id) {
+    const idx = overlays.findIndex(o => o.id === id);
+    if (idx === -1) return;
+    overlays[idx].el.remove();
+    overlays.splice(idx, 1);
+    if (selectedOverlayId === id) selectedOverlayId = null;
+    _pushHistory();
+  }
+
+  function handleOverlayDrag(e) {
+    const ov = overlays.find(o => o.id === _ovDrag.id);
+    if (!ov) return;
+    ov.x = _ovDrag.origX + (e.clientX - _ovDrag.startX);
+    ov.y = _ovDrag.origY + (e.clientY - _ovDrag.startY);
+    ov.el.style.left = ov.x + 'px';
+    ov.el.style.top = ov.y + 'px';
+  }
+
+  function handleOverlayResize(e) {
+    const ov = overlays.find(o => o.id === _ovResize.id);
+    if (!ov) return;
+    const dx = e.clientX - _ovResize.startX;
+    const dy = e.clientY - _ovResize.startY;
+    const { origX: ox, origY: oy, origW: ow, origH: oh } = _ovResize;
+    let nx = ox, ny = oy, nw = ow, nh = oh;
+    switch (_ovResize.handle) {
+      case 'tl': nx=ox+dx; ny=oy+dy; nw=ow-dx; nh=oh-dy; break;
+      case 't':  ny=oy+dy; nh=oh-dy; break;
+      case 'tr': ny=oy+dy; nw=ow+dx; nh=oh-dy; break;
+      case 'r':  nw=ow+dx; break;
+      case 'br': nw=ow+dx; nh=oh+dy; break;
+      case 'b':  nh=oh+dy; break;
+      case 'bl': nx=ox+dx; nw=ow-dx; nh=oh+dy; break;
+      case 'l':  nx=ox+dx; nw=ow-dx; break;
+    }
+    if (nw < 20) { if (['tl','l','bl'].includes(_ovResize.handle)) nx = ox + ow - 20; nw = 20; }
+    if (nh < 20) { if (['tl','t','tr'].includes(_ovResize.handle)) ny = oy + oh - 20; nh = 20; }
+    ov.x = nx; ov.y = ny; ov.w = nw; ov.h = nh;
+    ov.el.style.left = nx + 'px';
+    ov.el.style.top = ny + 'px';
+    ov.el.style.width = nw + 'px';
+    ov.el.style.height = nh + 'px';
+  }
+
+  // ── CROP MODE ──────────────────────────────────────────────────────────────
+  function startCropMode() {
+    if (_cropState) return; // already cropping
+    if (selectedOverlayId === null) { alert('Select an overlay image first, then click Crop Overlay.'); return; }
+    const ov = overlays.find(o => o.id === selectedOverlayId);
+    if (!ov) return;
+
+    // Hide overlay handles/outline while cropping
+    ov.el.classList.remove('ov-selected');
+    ov.el.querySelectorAll('.ov-handle, .ov-delete').forEach(el => { el.style.display = 'none'; });
+
+    const canvasWrap = document.getElementById('canvas-wrap');
+
+    // Crop rect starts inset 10% on each side
+    const insetX = Math.round(ov.w * 0.1);
+    const insetY = Math.round(ov.h * 0.1);
+    const cropX = insetX, cropY = insetY;
+    const cropW = ov.w - insetX * 2;
+    const cropH = ov.h - insetY * 2;
+
+    // Build crop UI positioned exactly over the overlay
+    const uiEl = document.createElement('div');
+    uiEl.className = 'crop-ui';
+    uiEl.style.left = ov.x + 'px';
+    uiEl.style.top  = ov.y + 'px';
+    uiEl.style.width  = ov.w + 'px';
+    uiEl.style.height = ov.h + 'px';
+
+    const cropRectEl = document.createElement('div');
+    cropRectEl.className = 'crop-rect';
+    uiEl.appendChild(cropRectEl);
+
+    ['tl','t','tr','r','br','b','bl','l'].forEach(pos => {
+      const h = document.createElement('div');
+      h.className = `crop-handle c-${pos}`;
+      h.dataset.handle = pos;
+      cropRectEl.appendChild(h);
+    });
+
+    canvasWrap.appendChild(uiEl);
+
+    // Floating confirm/cancel bar
+    const actionsEl = document.createElement('div');
+    actionsEl.className = 'crop-actions-bar';
+    actionsEl.innerHTML = `
+      <span>Drag handles to adjust crop</span>
+      <div class="toolbar-sep" style="width:1px;height:20px;background:var(--border);margin:0 4px"></div>
+      <button class="tool-btn primary" style="height:28px;padding:0 12px;font-size:12px" onclick="applyCrop()">✓ Apply Crop</button>
+      <button class="tool-btn" style="height:28px;padding:0 10px;font-size:12px" onclick="cancelCrop()">✗ Cancel</button>`;
+    document.body.appendChild(actionsEl);
+
+    _cropState = { ovId: ov.id, uiEl, cropRectEl, actionsEl, cropX, cropY, cropW, cropH,
+      dragging: false, handle: null, startX: 0, startY: 0,
+      origCropX: 0, origCropY: 0, origCropW: 0, origCropH: 0 };
+
+    _updateCropRect();
+
+    // Wire mouse interactions on the crop-rect
+    cropRectEl.addEventListener('mousedown', e => {
+      e.stopPropagation();
+      e.preventDefault();
+      _cropState.startX = e.clientX;
+      _cropState.startY = e.clientY;
+      _cropState.origCropX = _cropState.cropX;
+      _cropState.origCropY = _cropState.cropY;
+      _cropState.origCropW = _cropState.cropW;
+      _cropState.origCropH = _cropState.cropH;
+      if (e.target.classList.contains('crop-handle')) {
+        _cropState.handle = e.target.dataset.handle;
+        _cropState.dragging = false;
+      } else {
+        _cropState.handle = null;
+        _cropState.dragging = true;
+      }
+    });
+  }
+
+  function _updateCropRect() {
+    if (!_cropState) return;
+    const { cropRectEl, cropX, cropY, cropW, cropH } = _cropState;
+    cropRectEl.style.left   = cropX + 'px';
+    cropRectEl.style.top    = cropY + 'px';
+    cropRectEl.style.width  = cropW + 'px';
+    cropRectEl.style.height = cropH + 'px';
+  }
+
+  function handleCropMouseMove(e) {
+    if (!_cropState) return;
+    if (!_cropState.dragging && !_cropState.handle) return;
+    const ov = overlays.find(o => o.id === _cropState.ovId);
+    if (!ov) return;
+    const dx = e.clientX - _cropState.startX;
+    const dy = e.clientY - _cropState.startY;
+    const { origCropX: ox, origCropY: oy, origCropW: ow, origCropH: oh } = _cropState;
+    const MIN = 20;
+
+    if (_cropState.dragging) {
+      // Move: clamp within overlay bounds
+      _cropState.cropX = Math.max(0, Math.min(ov.w - ow, ox + dx));
+      _cropState.cropY = Math.max(0, Math.min(ov.h - oh, oy + dy));
+    } else {
+      let nx = ox, ny = oy, nw = ow, nh = oh;
+      switch (_cropState.handle) {
+        case 'tl': nx=ox+dx; ny=oy+dy; nw=ow-dx; nh=oh-dy; break;
+        case 't':  ny=oy+dy; nh=oh-dy; break;
+        case 'tr': ny=oy+dy; nw=ow+dx; nh=oh-dy; break;
+        case 'r':  nw=ow+dx; break;
+        case 'br': nw=ow+dx; nh=oh+dy; break;
+        case 'b':  nh=oh+dy; break;
+        case 'bl': nx=ox+dx; nw=ow-dx; nh=oh+dy; break;
+        case 'l':  nx=ox+dx; nw=ow-dx; break;
+      }
+      // Clamp: no smaller than MIN, no larger than overlay
+      if (nw < MIN) { if (['tl','l','bl'].includes(_cropState.handle)) nx = ox + ow - MIN; nw = MIN; }
+      if (nh < MIN) { if (['tl','t','tr'].includes(_cropState.handle)) ny = oy + oh - MIN; nh = MIN; }
+      nx = Math.max(0, nx); ny = Math.max(0, ny);
+      if (nx + nw > ov.w) { if (['tl','l','bl'].includes(_cropState.handle)) nx = ov.w - nw; else nw = ov.w - nx; }
+      if (ny + nh > ov.h) { if (['tl','t','tr'].includes(_cropState.handle)) ny = ov.h - nh; else nh = ov.h - ny; }
+      _cropState.cropX = nx; _cropState.cropY = ny;
+      _cropState.cropW = nw; _cropState.cropH = nh;
+    }
+    _updateCropRect();
+  }
+
+  function handleCropMouseUp() {
+    if (!_cropState) return;
+    _cropState.dragging = false;
+    _cropState.handle = null;
+  }
+
+  function applyCrop() {
+    if (!_cropState) return;
+    const ov = overlays.find(o => o.id === _cropState.ovId);
+    if (!ov) { cancelCrop(); return; }
+
+    const { cropX, cropY, cropW, cropH } = _cropState;
+    // Map crop rect (overlay-local pixels) → source image pixels
+    const scaleX = ov.imgObj.naturalWidth  / ov.w;
+    const scaleY = ov.imgObj.naturalHeight / ov.h;
+    const srcX = cropX * scaleX, srcY = cropY * scaleY;
+    const srcW = cropW * scaleX, srcH = cropH * scaleY;
+
+    const offscreen = document.createElement('canvas');
+    offscreen.width = Math.round(srcW);
+    offscreen.height = Math.round(srcH);
+    const ctx = offscreen.getContext('2d');
+    ctx.drawImage(ov.imgObj, srcX, srcY, srcW, srcH, 0, 0, offscreen.width, offscreen.height);
+
+    const newSrc = offscreen.toDataURL('image/png');
+    const newImg = new Image();
+    newImg.onload = () => {
+      ov.imgObj = newImg;
+      ov.src = newSrc;
+      ov.el.querySelector('img').src = newSrc;
+      // Update overlay position/size to match the crop rect
+      ov.x += cropX; ov.y += cropY;
+      ov.w = cropW;  ov.h = cropH;
+      ov.el.style.left   = ov.x + 'px';
+      ov.el.style.top    = ov.y + 'px';
+      ov.el.style.width  = ov.w + 'px';
+      ov.el.style.height = ov.h + 'px';
+      _cleanupCropUI();
+      selectOverlay(ov.id);
+      _pushHistory();
+    };
+    newImg.src = newSrc;
+  }
+
+  function cancelCrop() {
+    if (!_cropState) return;
+    const ov = overlays.find(o => o.id === _cropState.ovId);
+    _cleanupCropUI();
+    if (ov) selectOverlay(ov.id);
+  }
+
+  function _cleanupCropUI() {
+    if (!_cropState) return;
+    _cropState.uiEl.remove();
+    _cropState.actionsEl.remove();
+    _cropState = null;
+  }
+
   // ── TOOLS & COLORS ─────────────────────────────────────────────────────────
-  const ALL_TOOL_BTNS = ['rect', 'shape-rect', 'shape-circle', 'shape-oval', 'shape-line', 'shape-arrow', 'select'];
+  const ALL_TOOL_BTNS = ['rect', 'shape-rect', 'shape-circle', 'shape-oval', 'shape-line', 'shape-arrow', 'doodle', 'text', 'select'];
 
   function setTool(t) {
     tool = t;
@@ -1145,7 +2008,7 @@
       const el = document.getElementById('btn-' + n);
       if (el) el.classList.toggle('active', n === t);
     });
-    interLayer.style.cursor = t === 'select' ? 'default' : 'crosshair';
+    interLayer.style.cursor = t === 'select' ? 'default' : t === 'text' ? 'text' : 'crosshair';
     // Show/hide opacity slider only for highlight tool
     const opacityLabel = document.getElementById('opacity-label');
     const opacitySlider = document.getElementById('opacity-slider');
@@ -1156,6 +2019,34 @@
   }
 
   function setShapeTool(t) {
+    // If an annotation is selected, change its shape instead of switching drawing tool
+    if (selectedId !== null) {
+      const ann = annotations.find(a => a.id === selectedId);
+      if (ann) {
+        const newShape = t.replace('shape-', '');
+        const wasLinear = ann.shape === 'line' || ann.shape === 'arrow';
+        const willBeLinear = newShape === 'line' || newShape === 'arrow';
+        if (wasLinear && !willBeLinear) {
+          // Convert linear → box using x2/y2
+          ann.w = (ann.x2 ?? ann.x) - ann.x;
+          ann.h = (ann.y2 ?? ann.y) - ann.y;
+          if (ann.w < 0) { ann.x += ann.w; ann.w = Math.abs(ann.w); }
+          if (ann.h < 0) { ann.y += ann.h; ann.h = Math.abs(ann.h); }
+          if (ann.w < 20) ann.w = 20;
+          if (ann.h < 20) ann.h = 20;
+        } else if (!wasLinear && willBeLinear) {
+          // Convert box → linear
+          ann.x2 = ann.x + (ann.w || 0);
+          ann.y2 = ann.y + (ann.h || 0);
+        }
+        ann.shape = newShape;
+        renderAnnotations();
+        renderSidePanel();
+        updatePrompt();
+        _pushHistory();
+        return; // stay in select mode
+      }
+    }
     setTool(t);
   }
 
@@ -1163,6 +2054,17 @@
     currentColor = el.dataset.color;
     document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
     el.classList.add('active');
+    // If an annotation is selected, update its color immediately
+    if (selectedId !== null) {
+      const ann = annotations.find(a => a.id === selectedId);
+      if (ann) {
+        ann.color = currentColor;
+        renderAnnotations();
+        renderSidePanel();
+        updatePrompt();
+        _pushHistory();
+      }
+    }
   }
 
   function setOpacity(val) {
@@ -1197,11 +2099,22 @@
       ).join('');
 
       // Expanded body (textarea + type badges) only shown for selected annotation
-      const body = isSelected ? `
+      const isTextAnn = (ann.shape === 'text');
+      const textInput = isTextAnn ? `
           <div class="ann-note-wrap">
-            ${hasNote ? '' : '<div style="font-size:11px;color:#3b82f6;margin-bottom:4px">Click to type your note</div>'}
+            <label style="font-size:11px;color:var(--muted);margin-bottom:2px;display:block">Display text:</label>
+            <textarea class="ann-note ann-text-input" style="font-weight:600;${!ann.text ? 'border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,0.2)' : ''}" placeholder="Type text to show on image…" oninput="updateTextContent(${ann.id},this.value)">${ann.text || ''}</textarea>
+            <label style="font-size:11px;color:var(--muted);margin-bottom:2px;margin-top:6px;display:block">Font size:</label>
+            <input type="range" min="10" max="72" value="${ann.fontSize || 18}" oninput="updateFontSize(${ann.id},this.value)" style="width:100%">
+          </div>` : '';
+      const noteInput = `
+          <div class="ann-note-wrap">
+            ${!isTextAnn && !hasNote ? '<div style="font-size:11px;color:#3b82f6;margin-bottom:4px">Click to type your note</div>' : ''}
             <textarea class="ann-note" style="${!hasNote ? 'border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,0.2)' : ''}" placeholder="What needs to change here? Be specific…" oninput="updateNote(${ann.id},this.value)">${ann.note}</textarea>
-          </div>
+          </div>`;
+      const body = isSelected ? `
+          ${textInput}
+          ${noteInput}
           <div class="ann-type-row">${typeBadges}</div>` : '';
 
       return `
@@ -1210,7 +2123,7 @@
             <span class="ann-color-dot" style="background:${ann.color}"></span>
             <span class="ann-num" style="color:${ann.color}">#${i + 1}</span>
             <span style="font-size:10px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:1px 5px;margin-right:4px">${shapeLabel}</span>
-            <span class="ann-label" style="flex:1;font-size:11px;color:${hasNote ? 'var(--text)' : 'var(--muted)'}">${hasNote ? ann.note.slice(0, 38) + (ann.note.length > 38 ? '…' : '') : 'no note yet'}</span>
+            <span class="ann-label" style="flex:1;font-size:11px;color:${isTextAnn ? (ann.text ? 'var(--text)' : 'var(--muted)') : (hasNote ? 'var(--text)' : 'var(--muted)')}">${isTextAnn ? (ann.text ? ann.text.slice(0, 38) + (ann.text.length > 38 ? '…' : '') : 'no text yet') : (hasNote ? ann.note.slice(0, 38) + (ann.note.length > 38 ? '…' : '') : 'no note yet')}</span>
             <span class="ann-delete" onclick="event.stopPropagation();deleteAnnotation(${ann.id})">×</span>
           </div>
           ${body}
@@ -1235,6 +2148,7 @@
     renderAnnotations();
     renderSidePanel();
     updatePrompt();
+    _pushHistory();
   }
 
   function updateNote(id, val) {
@@ -1254,11 +2168,34 @@
     if (hint && val.trim().length > 0) hint.style.display = 'none';
   }
 
+  function updateTextContent(id, val) {
+    const ann = annotations.find(a => a.id === id);
+    if (!ann) return;
+    ann.text = val;
+    renderAnnotations();
+    updatePrompt();
+    // Update header label
+    const label = document.querySelector(`[data-ann-id="${id}"] .ann-label`);
+    if (label) {
+      const preview = val.trim() ? val.slice(0, 38) + (val.length > 38 ? '…' : '') : 'no text yet';
+      label.textContent = preview;
+      label.style.color = val.trim() ? 'var(--text)' : 'var(--muted)';
+    }
+  }
+
+  function updateFontSize(id, val) {
+    const ann = annotations.find(a => a.id === id);
+    if (!ann) return;
+    ann.fontSize = parseInt(val);
+    renderAnnotations();
+  }
+
   function setAnnType(id, type) {
     const ann = annotations.find(a => a.id === id);
     if (ann) ann.type = type;
     renderSidePanel();
     updatePrompt();
+    _pushHistory();
   }
 
   // ── PROMPT GENERATION ──────────────────────────────────────────────────────
@@ -1269,7 +2206,10 @@
     const typeEmoji = { bug: '🐛', improvement: '💡', question: '❓', praise: '✅' };
     const groups = { bug: [], improvement: [], question: [], praise: [] };
     annotations.forEach((ann, i) => {
-      groups[ann.type || 'improvement'].push({ num: i + 1, note: ann.note || '(no note added)' });
+      const desc = ann.shape === 'text'
+        ? (ann.text ? `[Text: "${ann.text}"] ` : '') + (ann.note || '(no note added)')
+        : (ann.note || '(no note added)');
+      groups[ann.type || 'improvement'].push({ num: i + 1, note: desc });
     });
     const lines = [];
     if (context) lines.push('Context: ' + context + '\n');
@@ -1365,8 +2305,8 @@
     }
     const dateStr = localDate;
     const context = document.getElementById('context-input').value.trim();
-    const slug = context ? context.replace(/[^a-z0-9]/gi, '-').toLowerCase().slice(0, 30) : 'feedback';
-    const baseName = `${slug}-${dateStr}`;
+    const slug = context ? '-' + context.replace(/[^a-z0-9]/gi, '-').toLowerCase().slice(0, 30) : '';
+    const baseName = `${dateStr}${slug}`;
 
     // ── 1. ANNOTATED PNG ─────────────────────────────────────────────────────
     const composite = document.createElement('canvas');
@@ -1374,6 +2314,8 @@
     composite.height = baseCanvas.height;
     const cx = composite.getContext('2d');
     cx.drawImage(baseCanvas, 0, 0);
+    // Draw overlay images (between base and annotations)
+    overlays.forEach(ov => cx.drawImage(ov.imgObj, ov.x, ov.y, ov.w, ov.h));
     cx.drawImage(drawCanvas, 0, 0);
 
     // Stamp numbered legend at bottom-right corner
@@ -1470,16 +2412,9 @@
     // ── 3. SAVE TO C:\Tools\annotator-screenshots via File System Access API ─
     if ('showDirectoryPicker' in window) {
       try {
-        // First save: user grants access to the parent directory, then we create the target folder
+        // First save: user selects the save directory directly
         if (!savedDirHandle) {
-          const lastSep = Math.max(saveRoot.lastIndexOf('\\'), saveRoot.lastIndexOf('/'));
-          const parentPath = lastSep > 0 ? saveRoot.substring(0, lastSep) : saveRoot;
-          const targetFolder = lastSep > 0 ? saveRoot.substring(lastSep + 1) : '';
-          const parentHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-          // Create the target folder (e.g., "annotator-screenshots") inside the selected parent
-          savedDirHandle = targetFolder
-            ? await parentHandle.getDirectoryHandle(targetFolder, { create: true })
-            : parentHandle;
+          savedDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
         }
 
         // Create a subfolder for this session
@@ -1547,10 +2482,14 @@
   }
 
   function clearAll() {
-    if (annotations.length === 0 && !image) return;
+    if (annotations.length === 0 && overlays.length === 0 && !image) return;
     if (!confirm('Clear all annotations and image?')) return;
     annotations = [];
     selectedId = null;
+    if (_cropState) { _cleanupCropUI(); }
+    overlays.forEach(ov => ov.el.remove());
+    overlays = [];
+    selectedOverlayId = null;
     image = null;
     displayScale = 1;
     resizeCanvases(1, 1);
@@ -1574,6 +2513,7 @@
   // ── INIT ───────────────────────────────────────────────────────────────────
   resizeCanvases(800, 500);
   renderSidePanel();
+  _pushHistory(); // initial empty state
 
   // ── SIDEBAR RESIZE HANDLES ─────────────────────────────────────────────────
   (function() {
@@ -1609,11 +2549,19 @@
   // regardless of any timing/ordering issue in the event-driven calls.
   let _lastAnnLen = -1;
   let _lastSelectedId = undefined;
+  let _lastHasChanges = false;
   function _syncLoop() {
     if (annotations.length !== _lastAnnLen || selectedId !== _lastSelectedId) {
       _lastAnnLen = annotations.length;
       _lastSelectedId = selectedId;
       renderSidePanel();
+    }
+    // Show toolbar save icon whenever there's anything to save
+    const hasChanges = !!(image && (annotations.length > 0 || overlays.length > 0));
+    if (hasChanges !== _lastHasChanges) {
+      _lastHasChanges = hasChanges;
+      const icon = document.getElementById('toolbar-save-icon');
+      if (icon) icon.style.display = hasChanges ? 'inline-block' : 'none';
     }
     requestAnimationFrame(_syncLoop);
   }
