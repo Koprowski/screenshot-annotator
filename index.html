@@ -100,6 +100,9 @@
     padding: 10px 14px;
     border-top: 1px solid var(--border);
     background: var(--surface);
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
   }
 
   /* Full-screen prompt overlay */
@@ -271,7 +274,8 @@
     flex-direction: column;
     background: var(--surface);
     flex-shrink: 0;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .panel-header {
@@ -296,8 +300,8 @@
   }
 
   .annotations-list {
-    flex: 1;
-    min-height: 0;
+    flex: 0 0 auto;
+    min-height: 140px;
     overflow-y: auto;
     padding: 10px;
     display: flex;
@@ -403,13 +407,12 @@
   /* PROMPT OUTPUT */
   .prompt-section {
     border-top: 1px solid var(--border);
-    flex: 1;
-    min-height: 0;
+    flex: 0 0 auto;
+    min-height: 280px;
     display: flex;
     flex-direction: column;
     padding: 10px 14px 8px;
     gap: 8px;
-    overflow: hidden;
   }
   .prompt-section-header {
     display: flex;
@@ -785,7 +788,7 @@
       <span class="annotation-count" id="ann-count">0</span>
     </div>
 
-    <div class="annotations-list" id="annotations-list" style="height:220px;flex:none">
+    <div class="annotations-list" id="annotations-list">
       <div class="empty-state" id="empty-state">
         Paste a screenshot then draw highlights to start annotating.
       </div>
@@ -794,7 +797,7 @@
     <div class="resize-handle" id="rh-ann" title="Drag to resize"></div>
 
     <!-- CONTEXT -->
-    <div class="context-section" id="context-section" style="height:80px;flex:none">
+    <div class="context-section" id="context-section" style="min-height:90px;flex:0 0 auto">
       <label>Context for Claude</label>
       <textarea class="context-input" id="context-input" placeholder="e.g. This is the DART Score playground. The file is dart-score-playground.html." oninput="updatePrompt()"></textarea>
     </div>
