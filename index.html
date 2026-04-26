@@ -78,6 +78,69 @@
   .tool-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   .tool-btn.primary:hover { background: #4a60e8; }
   .tool-btn.success { background: #16a34a; border-color: #16a34a; color: #fff; }
+  .tool-btn.success:hover { background: #15803d; border-color: #15803d; }
+  .tool-btn.save-prominent {
+    height: 36px;
+    padding: 0 18px;
+    font-size: 13px;
+    font-weight: 700;
+    background: #16a34a;
+    border-color: #16a34a;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(22,163,74,0.35);
+  }
+  .tool-btn.save-prominent:hover { background: #15803d; border-color: #15803d; }
+  .toolbar-spacer { flex: 1 1 auto; min-width: 12px; }
+
+  /* Sticky bottom action bar in side panel */
+  .side-actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: 8px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  /* Full-screen prompt overlay */
+  .prompt-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8,10,16,0.92);
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+    padding: 32px;
+  }
+  .prompt-overlay.open { display: flex; }
+  .prompt-overlay-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+  }
+  .prompt-overlay-header h3 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+  .prompt-overlay textarea {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-size: 13px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    line-height: 1.6;
+    color: var(--text);
+    resize: none;
+    outline: none;
+    overflow-y: auto;
+  }
+  .prompt-overlay textarea:focus { border-color: var(--accent); }
 
   /* COLOR SWATCHES */
   .color-group {
@@ -683,6 +746,8 @@
   <button class="tool-btn danger" onclick="clearAll()">🗑 Clear All</button>
   <button class="tool-btn" onclick="changeSavePath()" title="Change the hardcoded parent directory used for clipboard path">⚙ Set Path</button>
   <span id="scale-indicator" style="display:none;font-size:11px;color:var(--muted);white-space:nowrap;margin-left:4px"></span>
+  <div class="toolbar-spacer"></div>
+  <button class="tool-btn save-prominent" id="toolbar-save-btn" onclick="saveSession()" title="Save Session (Ctrl+S)">💾 Save Session</button>
 </div>
 
 <!-- WORKSPACE -->
@@ -740,18 +805,36 @@
     <div class="prompt-section" id="prompt-section">
       <div class="prompt-section-header">
         <h4>Feedback Prompt</h4>
-        <button class="tool-btn" id="prompt-reset-btn" onclick="resetPrompt()" title="Regenerate from annotations">&#8635; Reset</button>
+        <div style="display:flex;gap:6px">
+          <button class="tool-btn" id="prompt-expand-btn" onclick="toggleOverlay(true)" title="Expand to full screen" style="height:22px;padding:0 8px;font-size:10px">&#9974; Expand</button>
+          <button class="tool-btn" id="prompt-reset-btn" onclick="resetPrompt()" title="Regenerate from annotations">&#8635; Reset</button>
+        </div>
       </div>
       <div class="prompt-box-wrap">
         <textarea class="prompt-box" id="prompt-box" oninput="onPromptEdit(this.value)">Add annotations to generate a feedback prompt.</textarea>
       </div>
-      <div class="prompt-actions">
-        <button class="tool-btn primary" style="flex:1" id="copy-btn" onclick="copyPrompt()">Copy Prompt</button>
-        <button class="tool-btn success" id="save-btn" onclick="saveSession()" title="Saves to C:\Tools\annotator-screenshots (auto-created). C:\Tools must exist — if not, files download to Downloads folder instead.">&#128190; Save Session</button>
-      </div>
+    </div>
+
+    <!-- Sticky bottom action bar — always visible -->
+    <div class="side-actions">
+      <button class="tool-btn primary" style="flex:1" id="copy-btn" onclick="copyPrompt()">Copy Prompt</button>
+      <button class="tool-btn success" id="save-btn" onclick="saveSession()" title="Saves to C:\Tools\annotator-screenshots (auto-created). C:\Tools must exist — if not, files download to Downloads folder instead.">&#128190; Save Session</button>
     </div>
 
   </div>
+</div>
+
+<!-- Full-screen feedback prompt overlay -->
+<div class="prompt-overlay" id="prompt-overlay">
+  <div class="prompt-overlay-header">
+    <h3>Feedback Prompt</h3>
+    <div style="display:flex;gap:8px">
+      <button class="tool-btn primary" onclick="copyPromptFromOverlay()">Copy Prompt</button>
+      <button class="tool-btn success" onclick="saveSession()">&#128190; Save Session</button>
+      <button class="tool-btn" onclick="toggleOverlay(false)">&#10005; Close</button>
+    </div>
+  </div>
+  <textarea id="prompt-overlay-textarea" oninput="onOverlayPromptEdit(this.value)"></textarea>
 </div>
 
 <script>
@@ -1430,7 +1513,13 @@
       renderAnnotations();
       renderSidePanel();
       updatePrompt();
-      if (ann) _pushHistory();
+      if (ann) {
+        _pushHistory();
+        setTimeout(() => {
+          const ta = document.querySelector(`[data-ann-id="${ann.id}"] textarea`);
+          if (ta) { ta.focus(); ta.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+        }, 60);
+      }
       return;
     }
 
@@ -1481,6 +1570,10 @@
     // Undo / Redo — handled before textarea check so they work globally
     if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); return; }
     if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); redo(); return; }
+    // Ctrl+S — save (works even when typing in a textarea)
+    if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) { e.preventDefault(); saveSession(); return; }
+    // Esc closes the prompt overlay
+    if (e.key === 'Escape' && document.getElementById('prompt-overlay')?.classList.contains('open')) { toggleOverlay(false); return; }
     const tag = document.activeElement?.tagName;
     if (tag === 'TEXTAREA' || tag === 'INPUT') return;
     if (e.key === 'Delete' || e.key === 'Backspace') {
@@ -2255,6 +2348,37 @@
       if (idx >= 0 && idx < annotations.length) annotations[idx].note = m[2].trim();
     });
     renderSidePanel();
+    // Mirror to overlay if open
+    const ov = document.getElementById('prompt-overlay-textarea');
+    if (ov && ov.value !== val) ov.value = val;
+  }
+
+  function onOverlayPromptEdit(val) {
+    const box = document.getElementById('prompt-box');
+    if (box && box.value !== val) box.value = val;
+    onPromptEdit(val);
+  }
+
+  function copyPromptFromOverlay() {
+    const ov = document.getElementById('prompt-overlay-textarea');
+    const box = document.getElementById('prompt-box');
+    if (ov && box) box.value = ov.value;
+    copyPrompt();
+  }
+
+  function toggleOverlay(open) {
+    const ov = document.getElementById('prompt-overlay');
+    const ta = document.getElementById('prompt-overlay-textarea');
+    const box = document.getElementById('prompt-box');
+    if (!ov || !ta || !box) return;
+    if (open) {
+      ta.value = box.value;
+      ov.classList.add('open');
+      setTimeout(() => ta.focus(), 50);
+    } else {
+      box.value = ta.value;
+      ov.classList.remove('open');
+    }
   }
 
   function copyPrompt() {
